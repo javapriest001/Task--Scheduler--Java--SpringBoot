@@ -15,14 +15,17 @@ public interface UserService {
 
     Task createTask(TaskDTO taskDTO);
 
-    Task updateTitleAndDescription(TaskDTO taskDTO);
+    Task updateTitleAndDescription(TaskDTO taskDTO , int id);
+
+    Task getTaskById(int id);
 
     List<Task> viewAllTasks();
 
-    Task getSingleTask(int id);
+    boolean updateTaskStatus(String status, int id);
 
     List<Task> viewAllTaskByStatus(String status);
 
     boolean deleteById(int id);
+    User getUserByEmail(String email);
 
 }

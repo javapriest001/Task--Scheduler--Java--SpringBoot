@@ -1,5 +1,4 @@
 package com.example.activitytracker.ServiceImpl;
-
 import com.example.activitytracker.DTO.TaskDTO;
 import com.example.activitytracker.DTO.UserDTO;
 import com.example.activitytracker.Exception.TaskNotFoundException;
@@ -26,6 +25,7 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
     }
+
 
     @Override
     public User registerUser(UserDTO userDTO) {
@@ -69,8 +69,6 @@ public class UserServiceImpl implements UserService {
     public List<Task> viewAllTasks() {
         return taskRepository.findAll();
     }
-
-
 
     @Override
     public List<Task> viewAllTaskByStatus(String status) {

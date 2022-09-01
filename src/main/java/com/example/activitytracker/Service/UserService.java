@@ -17,14 +17,19 @@ public interface UserService {
 
     Task updateTitleAndDescription(TaskDTO taskDTO , int id);
 
+    Task markTaskCompleted(int id);
+
+    List<Task> allTaskByUserId(int id);
+
     Task getTaskById(int id);
 
     List<Task> viewAllTasks();
 
-    boolean updateTaskStatus(String status, int id);
+    int updateTaskStatus(String status, int id);
 
     List<Task> viewAllTaskByStatus(String status);
 
+    List<Task> findAllByUser_idAndStatus(int user_id , String status);
     boolean deleteById(int id);
     User getUserByEmail(String email);
 

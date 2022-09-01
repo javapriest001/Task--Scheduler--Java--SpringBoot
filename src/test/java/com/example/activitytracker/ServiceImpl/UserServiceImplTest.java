@@ -2,6 +2,7 @@ package com.example.activitytracker.ServiceImpl;
 
 import com.example.activitytracker.DTO.TaskDTO;
 import com.example.activitytracker.DTO.UserDTO;
+import com.example.activitytracker.Exception.UserNotFoundException;
 import com.example.activitytracker.Model.Task;
 import com.example.activitytracker.Model.User;
 import com.example.activitytracker.Repository.TaskRepository;
@@ -20,7 +21,8 @@ import java.util.Optional;
 
 import static java.time.Month.AUGUST;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class UserServiceImplTest {
@@ -47,7 +49,7 @@ class UserServiceImplTest {
         taskList.add(task);
         this.user = new User(1, "Vincent" , "enwerevincent@gmail.com" , "12345" , taskList);
         this.task = new Task(1, "Write Code" , "Code till 7am" , "pending" , time , time , time , user);
-        this.taskDTO = new TaskDTO("Write Code" , "Code till 7am" );
+        this.taskDTO = new TaskDTO("Write Code" , "Code till 7am" , "pending" , 1);
         this.userDTO = new UserDTO("vincent" , "enwerevincent@gmail.com", "12345");
         when(userRepository.save(user)).thenReturn(user);
         when(taskRepository.save(task)).thenReturn(task);
@@ -57,7 +59,7 @@ class UserServiceImplTest {
         when(userRepository.findById(1)).thenReturn(Optional.ofNullable(user));
         when(taskRepository.findById(1)).thenReturn(Optional.ofNullable(task));
         when(userRepository.findUserByEmail("enwerevincent@gmail.com")).thenReturn(Optional.of(user));
-        when(taskRepository.updateTaskByIdAndStatus("ongoing" , 1)).thenReturn(true);
+        when(taskRepository.updateTaskByIdAndStatus("ongoing" , 1)).thenReturn(1);
 
     }
 
@@ -104,20 +106,25 @@ class UserServiceImplTest {
         assertEquals(taskList , userServiceImpl.viewAllTaskByStatus("pending"));
     }
 
-//    @Test
-//    void deleteById() {
-//        when(userServiceImpl.deleteById(1)).thenReturn(true);
-//        assertTrue(userServiceImpl.deleteById(1));
-//    }
-
     @Test
-    void updateTaskStatus() {
-        assertTrue(userServiceImpl.updateTaskStatus("ongoing" , 1));
+    void deleteById() {
+        userServiceImpl.deleteById(1);
+        verify(taskRepository).deleteById(any());
     }
+
+//    @Test
+//    void updateTaskStatus() {
+//        assertTrue(userServiceImpl.updateTaskStatus("ongoing" , 1));
+//    }
 
     @Test
     void getUserByEmail() {
         assertEquals(user , userServiceImpl.getUserByEmail("enwerevincent@gmail.com"));
+    }
+
+    @Test
+    void getUserByEmail_ThrowsUserNotFoundException()  throws UserNotFoundException {
+        assertThrows( UserNotFoundException.class, ()->  userServiceImpl.getUserByEmail("enwerevient@gmail.com"));
     }
 
     @Test

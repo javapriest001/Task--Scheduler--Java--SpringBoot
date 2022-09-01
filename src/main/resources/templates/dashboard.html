@@ -1,10 +1,252 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"  xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
     <title>Title</title>
-</head>
-<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function (){
+            $(".edit").click(function (e) {
+                e.preventDefault()
+                let taskId = this.getAttribute("data-bs-taskId");
+                let url = this.getAttribute("href")
+                console.log(taskId);
+                $.ajax({
+                    type : "GET",
+                    url : url,
+                    data: {id : taskId},
 
+                    success: function (data){
+                        console.log(data)
+                        $('#singleProduct').modal('show')
+                        $('.singleBody').html(data)
+                    }
+                })
+            })
+        })
+
+    </script>
+    <style>
+        .side__nav__list{
+            transition: 3ms ease;
+            font-size: 18px;
+            color: black;
+        }
+        .side__nav__list {
+            list-style: none !important;
+        }
+
+
+        .nav__item a{
+            transition: all 300ms ease;
+        }
+        .nav__item a:hover {
+            margin-left: 1rem;
+        }
+        .main{
+            overflow-y: scroll;
+            height: 100vh;
+        }
+        body{
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg shadow sticky-top px-5">
+    <a href="dashboard.html" class="navbar-brand">TRACKIE</a>
+    <div class="container-fluid">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container-fluid ">
+    <div class="row justify-content-space">
+        <div class="col-md-3 pt-5">
+            <aside class="side__nav">
+               <ul class="side__nav__list">
+                   <li class="nav-item nav__item mb-4">
+                      <a class="nav-link" th:href="@{/user/dashboard}">
+                          <i class="bi bi-house"></i>
+                          Dashboard
+                      </a>
+                   </li>
+                   <li class="nav-item nav__item mb-4">
+                       <a class="nav-link" th:href="@{/user/task/{status}(status='pending')}">
+                           <i class="bi bi-pause-circle"></i>
+                           Pending Task
+                       </a>
+                   </li>
+                   <li class="nav-item nav__item mb-4">
+                       <a class="nav-link" th:href="@{/user/task/{status}(status='inprogress')}">
+                           <i class="bi bi-play"></i>
+                           Task In Progress
+                       </a>
+                   </li>
+                   <li class="nav-item nav__item mb-4">
+                       <a class="nav-link" th:href="@{/user/task/{status}(status='completed')}">
+                           <i class="bi bi-check2-circle"></i>
+                           Completed
+                       </a>
+                   </li>
+                   <li class="nav-item nav__item  mt-5"><a class="nav-link" th:href="@{/logout}"><i class="bi bi-box-arrow-right"></i>  Logout</a> </li>
+               </ul>
+            </aside>
+        </div>
+        <div class="col-md-9  main">
+            <div class="row justify-content-center pt-5">
+                <h6 class="text-muted"> Add A new Task: </h6>
+                <form th:action="@{/user/addTask}" method="POST" th:object="${newTaskDetails}">
+                    <input type="hidden" th:value="${#session.getAttribute('id')}" th:name="user_id">
+                    <input type="hidden" value="pending" th:name="status">
+                    <div class="row justify-content-space align-items-center">
+                        <div class="col-3">
+                            <label for="title">Title</label>
+                            <input id="title" type="text" class="form-control" placeholder="Enter Task Title..." th:field="${newTaskDetails.title}"  required>
+                        </div>
+                        <div class="col-3">
+                            <label id="description">Description</label>
+                            <input class="form-control" placeholder="Add A Description..." th:field="${newTaskDetails.description}">
+                        </div>
+
+                        <div class="col-2 align-items-center ">
+
+                            <input type="submit" value="Add Task" class="btn btn-primary mt-4">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row pt-5">
+                <div th:each="task : ${tasks}" class="col-4 mb-2" th:if="${task.status.equals('pending')}">
+                    <div style="background: chocolate" class="card border-0 ">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-10">
+                                    <h6 th:text="${task.title}"></h6>
+                                    <small th:text="${task.description}"></small>
+                                </div>
+                                <div class="col-2">
+                                    <form method="POST" th:action="@{/user/delete/{id}(id =${task.id})}">
+                                        <button type="submit" style="background: none; outline: none; border: none"> <i class="bi bi-trash"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-10 d-flex align-items-center">
+                                    <small style="font-size: 11px" th:text="${task.createdAt}"></small>
+                                    <form method="POST" th:action="@{/user/changeStatus/{id}(id =${task.id})}">
+                                        <input type="hidden" value="inprogress" name="status">
+                                        <button type="submit" style="background: none; outline: none; border: none"> <small class="ms-1"> <i class="bi bi-play"></i> start</small></i></button>
+                                    </form>
+                                </div>
+                                <div class="col-2 d-flex">
+                                    <a class="edit nav-link" th:href="@{/user/editPage/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-pencil"></i></a>
+
+                                    <i class="bi bi-eye"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:each="task : ${tasks}" class="col-4 mb-2" th:if="${task.status.equals('inprogress')}">
+                    <div style="background: #FFFD98" class="card border-0 ">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-10">
+                                    <h6 th:text="${task.title}"></h6>
+                                    <small th:text="${task.description}"></small>
+                                </div>
+                                <div class="col-2">
+                                    <form method="POST" th:action="@{/user/delete/{id}(id =${task.id})}">
+                                        <button type="submit" style="background: none; outline: none; border: none"> <i class="bi bi-trash"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-10 d-flex">
+                                    <small style="font-size: 11px" th:text="${task.createdAt}"></small>
+                                    <form method="POST" th:action="@{/user/changeStatus/{id}(id =${task.id})}">
+                                        <input type="hidden" value="pending" name="status">
+                                        <button type="submit" style="background: none; outline: none; border: none"> <small class="ms-1"> <i class="bi bi-pause-circle"></i> </small></button>
+                                    </form>
+                                    <form method="POST" th:action="@{/user/complete/{id}(id =${task.id})}">
+                                        <button type="submit" style="background: none; outline: none; border: none"> <small class="ms-1"> <i class="bi bi-check2-circle"></i> </small></button>
+                                    </form>
+                                </div>
+                                <div class="col-2 d-flex">
+                                    <a class="edit nav-link" th:href="@{/user/editPage/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-pencil"></i></a>
+                                    <i class="bi bi-eye"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:each="task : ${tasks}" class="col-4 mb-2" th:if="${task.status.equals('completed')}">
+                    <div style="background: #B9E3C6" class="card border-0  ">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-10">
+                                    <h6 th:text="${task.title}"></h6>
+                                    <small th:text="${task.description}"></small>
+                                </div>
+                                <div class="col-2">
+                                    <form method="POST" th:action="@{/user/delete/{id}(id =${task.id})}">
+                                        <button type="submit" style="background: none; outline: none; border: none"> <i class="bi bi-trash"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-10">
+                                    <small style="font-size: 11px" th:text="${task.createdAt}"></small>
+                                </div>
+                                <div class="col-2 d-flex">
+
+                                    <a class="edit nav-link" th:href="@{/user/editPage/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-pencil"></i></a>
+                                    <i class="bi bi-eye"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="singleProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body singleBody">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 </body>
+
 </html>

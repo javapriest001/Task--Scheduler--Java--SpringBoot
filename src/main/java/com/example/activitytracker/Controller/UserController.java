@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
-//@RequiredArgsConstructor
 @RequestMapping(value = "/user")
 public class UserController {
 
@@ -30,8 +29,9 @@ public class UserController {
     }
 
     @GetMapping("/dashboard")
-    public String index(Model model){
-        List<Task> allTasks = userService.viewAllTasks();
+    public String index(Model model, HttpSession session){
+        List<Task> allTasks = userService.allTaskByUserId((Integer) session.getAttribute("id"));
+        model.addAttribute("newTaskDetails" , new TaskDTO());
         model.addAttribute("tasks" , allTasks);
         return "dashboard";
     }
@@ -51,14 +51,11 @@ public class UserController {
            session.setAttribute("email" , user.getEmail());
            session.setAttribute("id" , user.getId());
            session.setAttribute("name" , user.getName());
-           return "redirect:/dashboard";
+           return "redirect:/user/dashboard";
        }else{
            model.addAttribute("errorMessage" , message);
-           return  "redirect:/login";
+           return  "redirect:/user/login";
        }
-
-
-
     }
 
     @GetMapping(value = "/register")
@@ -71,17 +68,19 @@ public class UserController {
     public String registration(@ModelAttribute UserDTO userDTO){
 
         User registeredUser = userService.registerUser(userDTO);
+        System.out.println(registeredUser);
         if (registeredUser != null){
 
-            return "redirect:/login";
+            return "redirect:/user/login";
         }else {
-            return "redirect:/register";
+            return "redirect:/user/register";
         }
     }
 
     @GetMapping(value = "/task/{status}")
-    public String taskByStatus(@PathVariable(name = "status") String status , Model model){
-        List<Task> listOfTaskByStatus = userService.viewAllTaskByStatus(status);
+    public String taskByStatus(@PathVariable(name = "status") String status , Model model , HttpSession session){
+        int user_id = (int) session.getAttribute("id");
+        List<Task> listOfTaskByStatus = userService.findAllByUser_idAndStatus(user_id , status);
         model.addAttribute("tasksByStatus" , listOfTaskByStatus);
         return "task-by-status";
     }
@@ -89,7 +88,7 @@ public class UserController {
     @PostMapping("/delete/{id}")
     public String deleteTask(@PathVariable(name = "id") Integer id){
         userService.deleteById(id);
-        return "redirect:/dashboard";
+        return "redirect:/user/dashboard";
     }
 
     @GetMapping(value = "/editPage/{id}")
@@ -101,9 +100,10 @@ public class UserController {
     }
 
     @PostMapping(value = "/edit/{id}")
-    public String editTask(@PathVariable( name = "id") Integer id , @ModelAttribute TaskDTO taskDTO){
-        userService.updateTitleAndDescription(taskDTO , id);
-        return "redirect:/dashboard";
+    public String editTask(@PathVariable( name = "id") String id , @ModelAttribute TaskDTO taskDTO){
+        int taskId = Integer.parseInt(id);
+        userService.updateTitleAndDescription(taskDTO , taskId);
+        return "redirect:/user/dashboard";
     }
 
     @GetMapping(value = "/addNewTask")
@@ -115,7 +115,21 @@ public class UserController {
     @PostMapping(value = "/addTask")
     public String CreateTask(@ModelAttribute TaskDTO taskDTO){
         userService.createTask(taskDTO);
-        return "redirect:/dashboard";
+        return "redirect:/user/dashboard";
+    }
+
+    @PostMapping(value = "/changeStatus/{id}")
+    public String moveToInProgress(@PathVariable(name = "id")   String id, @RequestParam String status ){
+        int taskId = Integer.parseInt(id);
+        userService.updateTaskStatus(status, taskId);
+        return "redirect:/user/dashboard";
+    }
+
+    @PostMapping(value = "/complete/{id}")
+    public String complete(@PathVariable(name = "id")   String id){
+        int taskId = Integer.parseInt(id);
+        userService.markTaskCompleted(taskId);
+        return "redirect:/user/dashboard";
     }
 
 }

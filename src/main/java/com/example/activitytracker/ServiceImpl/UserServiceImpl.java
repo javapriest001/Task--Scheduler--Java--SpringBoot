@@ -11,6 +11,7 @@ import com.example.activitytracker.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -54,6 +55,8 @@ public class UserServiceImpl implements UserService {
         Task task = new Task();
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());
+        task.setStatus(taskDTO.getStatus());
+        task.setUser(userRepository.findById(taskDTO.getUser_id()).get());
         return taskRepository.save(task);
     }
 
@@ -62,6 +65,8 @@ public class UserServiceImpl implements UserService {
         Task task = getTaskById(id);
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());
+     //   task.setStatus(taskDTO.getStatus());
+        System.out.println(task);
         return taskRepository.save(task);
     }
 
@@ -70,6 +75,10 @@ public class UserServiceImpl implements UserService {
         return taskRepository.findAll();
     }
 
+    @Override
+    public List<Task> allTaskByUserId(int id){
+        return  taskRepository.findAllByUser_id(id);
+    }
     @Override
     public List<Task> viewAllTaskByStatus(String status) {
         return taskRepository.listOfTasksByStatus(status);
@@ -82,8 +91,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateTaskStatus(String status, int id){
+    public int updateTaskStatus(String status, int id){
         return taskRepository.updateTaskByIdAndStatus(status , id);
+    }
+
+    @Override
+    public Task markTaskCompleted(int id){
+        Task task = getTaskById(id);
+        if (task.getStatus().equals("inprogress")){
+            task.setCompletedAt(LocalDateTime.now());
+            task.setStatus("completed");
+        }
+        return  taskRepository.save(task);
+    }
+
+    @Override
+    public List<Task> findAllByUser_idAndStatus(int user_id , String status){
+        return taskRepository.findAllByUser_idAndStatus(user_id , status);
     }
 
     @Override

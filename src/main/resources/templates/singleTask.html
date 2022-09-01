@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+
+</head>
+<body>
+<div class="card border-0 rounded-2 shadow py-3">
+    <div class="card-body">
+        <small class="text-muted" th:text="${task.status}"></small>
+        <h3 class="text-center mb-4" th:text="${task.title}"></h3>
+        <p class="text-center" th:text="${task.description}"></p>
+
+        <h6 th:text="${'Date Of Creation: ' + task.createdAt}"> </h6>
+        <h6 th:text="${'Date Of Completion: ' + task.completedAt}"> </h6>
+        <h6 th:text="${'Last Updated date: ' + task.updatedAt}"> </h6>
+    </div>
+</div>
+</body>
+</html>

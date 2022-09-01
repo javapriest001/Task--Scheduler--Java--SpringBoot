@@ -132,4 +132,11 @@ public class UserController {
         return "redirect:/user/dashboard";
     }
 
+    @GetMapping(value = "/singleTask/{id}")
+    public String getSingleTask(@PathVariable(name = "id") String id , Model model){
+        Task task = userService.getTaskById(Integer.parseInt(id));
+        model.addAttribute("task" , task);
+        return "singleTask";
+    }
+
 }
